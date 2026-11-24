@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Zero To Hero Smart School</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f4f7f6; }
+    header { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+    nav { background: #334155; display: flex; gap: 10px; padding: 10px 20px; overflow-x: auto; }
+    nav button { background: transparent; color: white; border: none; padding: 8px 12px; cursor: pointer; font-size: 14px; border-radius: 5px; white-space: nowrap; }
+    nav button.active, nav button:hover { background: #007bff; }
+    .container { padding: 15px; max-width: 1000px; margin: auto; }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+    th { background: #f8fafc; }
+    input, select { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+    .action-btn { background: #10b981; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h3 style="margin:0;">Zero To Hero - Admin</h3>
+  <button class="logout-btn" id="logoutBtn">Logout</button>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="openTab(event, 'students')">Students & Admission</button>
+  <button class="tab-btn" onclick="openTab(event, 'fees')">Fees Management</button>
+  <button class="tab-btn" onclick="openTab(event, 'attendance')">Attendance</button>
+</nav>
+
+<div class="container">
+  
+  <div id="students" class="tab-content card">
+    <h3>Add / Approve Student Admission</h3>
+    <form id="addStudentForm">
+      <input type="text" id="sName" placeholder="Student Full Name" required>
+      <select id="sClass" required>
+        <option value="">Select Class</option>
+        <option value="Play Group">Play Group</option>
+        <option value="Nursery">Nursery</option>
+        <option value="Class 1">Class 1</option>
+        <option value="Coaching">Coaching</option>
+      </select>
+      <input type="text" id="sFather" placeholder="Father's Name" required>
+      <input type="tel" id="sPhone" placeholder="Contact Number" required>
+      <button type="submit" class="action-btn">Add Student</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Class</th>
+          <th>Father's Name</th>
+          <th>Contact</th>
+          <th>Fee Status</th>
+        </tr>
+      </thead>
+      <tbody id="studentTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="fees" class="tab-content card hidden">
+    <h3>Fees Management</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Class</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="feesTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="attendance" class="tab-content card hidden">
+    <h3>Daily Attendance</h3>
+    <label>Select Date: <input type="date" id="attDate"></label>
+    <table>
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Class</th>
+          <th>Mark Attendance</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  function openTab(event, tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.remove('hidden');
+    event.target.classList.add('active');
+  }
+  document.getElementById('attDate').valueAsDate = new Date();
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getAuth, onAuthStateChanged, signOut } from "https://gstatic.com";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc } from "https://gstatic.com";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtc5bzTqZD2V6TIO3aQF1n0sz8fSZIsTM",
+    authDomain: "://firebaseapp.com",
+    projectId: "zero-to-hero-smart-schoo-bf738",
+    storageBucket: "zero-to-hero-smart-schoo-bf738.firebasestorage.app",
+    messagingSenderId: "641666497738",
+    appId: "1:641666497738:web:fc183a8814028607960833",
+    measurementId: "G-3JQBXK8NRQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "admin-login.html";
+    } else {
+      loadStudents();
+    }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    signOut(auth).then(() => window.location.href = "admin-login.html");
+  });
+
+  document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await addDoc(collection(db, "students"), {
+      name: document.getElementById('sName').value,
+      className: document.getElementById('sClass').value,
+      fatherName: document.getElementById('sFather').value,
+      phone: document.getElementById('sPhone').value,
+      feeStatus: "Pending"
+    });
+    e.target.reset();
+    loadStudents();
+  });
+
+  async function loadStudents() {
+    const querySnapshot = await getDocs(collection(db, "students"));
+    const sBody = document.getElementById('studentTableBody');
+    const fBody = document.getElementById('feesTableBody');
+    const aBody = document.getElementById('attendanceTableBody');
+    
+    sBody.innerHTML = fBody.innerHTML = aBody.innerHTML = "";
+
+    querySnapshot.forEach((documentSnap) => {
+      const data = documentSnap.data();
+      const id = documentSnap.id;
+
+      sBody.innerHTML += `<tr><td>${data.name}</td><td>${data.className}</td><td>${data.fatherName}</td><td>${data.phone}</td><td>${data.feeStatus}</td></tr>`;
+
+      fBody.innerHTML += `<tr>
+        <td>${data.name}</td>
+        <td>${data.className}</td>
+        <td><strong>${data.feeStatus}</strong></td>
+        <td><button class="action-btn" onclick="toggleFee('${id}', '${data.feeStatus}')">Mark ${data.feeStatus === 'Paid' ? 'Pending' : 'Paid'}</button></td>
+      </tr>`;
+
+      aBody.innerHTML += `<tr>
+        <td>${data.name}</td>
+        <td>${data.className}</td>
+        <td>
+          <button class="action-btn" onclick="markAtt('${id}', '${data.name}', 'Present')">Present</button>
+          <button class="logout-btn" onclick="markAtt('${id}', '${data.name}', 'Absent')">Absent</button>
+        </td>
+      </tr>`;
+    });
+  }
+
+  window.toggleFee = async (id, currentStatus) => {
+    const newStatus = currentStatus === 'Paid' ? 'Pending' : 'Paid';
+    await updateDoc(doc(db, "students", id), { feeStatus: newStatus });
+    loadStudents();
+  };
+
+  window.markAtt = async (studentId, studentName, status) => {
+    const date = document.getElementById('attDate').value;
+    await addDoc(collection(db, "attendance"), { studentId, studentName, date, status });
+    alert(`${studentName} marked ${status} for ${date}`);
+  };
+</script>
+
+</body>
+</html>
