@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - Zero To Hero Smart School</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .login-box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 90%; max-width: 360px; }
+    h2 { text-align: center; color: #333; margin-bottom: 20px; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .error { color: red; font-size: 14px; text-align: center; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="login-box">
+  <h2>Admin Login</h2>
+  <form id="loginForm">
+    <input type="email" id="adminEmail" placeholder="Admin Email" required>
+    <input type="password" id="adminPassword" placeholder="Password" required>
+    <button type="submit">Secure Login</button>
+  </form>
+  <p id="errorMsg" class="error"></p>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getAuth, signInWithEmailAndPassword } from "https://gstatic.com";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCtc5bzTqZD2V6TIO3aQF1n0sz8fSZIsTM",
+    authDomain: "://firebaseapp.com",
+    projectId: "zero-to-hero-smart-schoo-bf738",
+    storageBucket: "zero-to-hero-smart-schoo-bf738.firebasestorage.app",
+    messagingSenderId: "641666497738",
+    appId: "1:641666497738:web:fc183a8814028607960833",
+    measurementId: "G-3JQBXK8NRQ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('adminEmail').value;
+    const password = document.getElementById('adminPassword').value;
+    const errorMsg = document.getElementById('errorMsg');
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "admin.html";
+    } catch (error) {
+      errorMsg.textContent = "Invalid Admin ID or Password!";
+    }
+  });
+</script>
+
+</body>
+</html>
