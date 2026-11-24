@@ -18,7 +18,7 @@
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
     th { background: #f8fafc; }
     input, select, textarea { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-family: inherit; }
-    .action-btn { background: #10b981; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold; }
+    .action-btn { background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold; }
     .reset-btn { background: #f59e0b; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
@@ -31,7 +31,8 @@
 
 <nav>
   <button class="tab-btn active" onclick="openTab(event, 'students')">Students & Password</button>
-  <button class="tab-btn" onclick="openTab(event, 'fees')">Fees</button>
+  <button class="tab-btn" onclick="openTab(event, 'fees')">Fees & Receipt</button>
+  <button class="tab-btn" onclick="openTab(event, 'results')">Upload Result</button>
   <button class="tab-btn" onclick="openTab(event, 'attendance')">Attendance</button>
   <button class="tab-btn" onclick="openTab(event, 'homework')">Homework & Notice</button>
 </nav>
@@ -71,15 +72,15 @@
     </table>
   </div>
 
-  <!-- 2. FEES -->
+  <!-- 2. FEES & RECEIPT -->
   <div id="fees" class="tab-content card hidden">
-    <h3>Fees Management</h3>
+    <h3>Fees & Receipt Management</h3>
     <table>
       <thead>
         <tr>
           <th>Student Name</th>
           <th>Class</th>
-          <th>Status</th>
+          <th>Status & Amount</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -87,7 +88,19 @@
     </table>
   </div>
 
-  <!-- 3. ATTENDANCE -->
+  <!-- 3. UPLOAD RESULT / MARKS CARD -->
+  <div id="results" class="tab-content card hidden">
+    <h3>🏆 Upload Student Result (अंक पत्र)</h3>
+    <form id="resultForm">
+      <input type="tel" id="resPhone" placeholder="छात्र का Mobile / Login ID डालें" required>
+      <input type="text" id="resExam" placeholder="परीक्षा का नाम (जैसे: Half Yearly Exam 2026)" required>
+      <input type="text" id="resMarks" placeholder="प्राप्तांक / कुल अंक (जैसे: 425 / 500 - 85%)" required>
+      <input type="text" id="resGrade" placeholder="Grade / Status (जैसे: Pass - First Division)" required>
+      <button type="submit" class="action-btn">Result सेव करें</button>
+    </form>
+  </div>
+
+  <!-- 4. ATTENDANCE -->
   <div id="attendance" class="tab-content card hidden">
     <h3>Daily Attendance</h3>
     <label>Select Date: <input type="date" id="attDate"></label>
@@ -103,11 +116,11 @@
     </table>
   </div>
 
-  <!-- 4. HOMEWORK & NOTICE BOARD -->
+  <!-- 5. HOMEWORK & NOTICE BOARD -->
   <div id="homework" class="tab-content card hidden">
     <h3>📢 Post Notice (सूचना भेजें)</h3>
     <form id="noticeForm">
-      <input type="text" id="noticeTitle" placeholder="सूचना का शीर्षक (जैसे: कल स्कूल बंद रहेगा)" required>
+      <input type="text" id="noticeTitle" placeholder="सूचना का शीर्षक" required>
       <textarea id="noticeBody" rows="2" placeholder="पूरा विवरण लिखें..." required></textarea>
       <button type="submit" class="action-btn">Notice पोस्ट करें</button>
     </form>
@@ -125,7 +138,7 @@
         <option value="Class 6 - 8">Class 6 - 8</option>
         <option value="Coaching">Coaching</option>
       </select>
-      <input type="text" id="hwSubject" placeholder="विषय (जैसे: Math, English, Hindi)" required>
+      <input type="text" id="hwSubject" placeholder="विषय (जैसे: Math, English)" required>
       <textarea id="hwText" rows="3" placeholder="आज का होमवर्क यहाँ लिखें..." required></textarea>
       <button type="submit" class="action-btn">Homework भेजें</button>
     </form>
@@ -182,10 +195,26 @@
       fatherName: document.getElementById('sFather').value,
       phone: document.getElementById('sPhone').value,
       password: document.getElementById('sPass').value,
-      feeStatus: "Pending"
+      feeStatus: "Pending",
+      feeAmount: "0",
+      feeDate: "-"
     });
     e.target.reset();
     loadStudents();
+  });
+
+  // Upload Result
+  document.getElementById('resultForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await addDoc(collection(db, "results"), {
+      phone: document.getElementById('resPhone').value.trim(),
+      exam: document.getElementById('resExam').value.trim(),
+      marks: document.getElementById('resMarks').value.trim(),
+      grade: document.getElementById('resGrade').value.trim(),
+      date: new Date().toLocaleDateString('hi-IN')
+    });
+    e.target.reset();
+    alert("✅ Result सफलतापूर्वक अपलोड हो गया है!");
   });
 
   // Post Notice
@@ -197,7 +226,7 @@
       date: new Date().toLocaleDateString('hi-IN')
     });
     e.target.reset();
-    alert("✅ Notice सफलतापूर्वक पोस्ट हो गया है!");
+    alert("✅ Notice पोस्ट हो गया है!");
   });
 
   // Post Homework
@@ -210,37 +239,7 @@
       date: new Date().toLocaleDateString('hi-IN')
     });
     e.target.reset();
-    alert("✅ Homework सफलतापूर्वक भेज दिया गया है!");
+    alert("✅ Homework भेज दिया गया है!");
   });
 
   async function loadStudents() {
-    const querySnapshot = await getDocs(collection(db, "students"));
-    const sBody = document.getElementById('studentTableBody');
-    const fBody = document.getElementById('feesTableBody');
-    const aBody = document.getElementById('attendanceTableBody');
-    
-    sBody.innerHTML = fBody.innerHTML = aBody.innerHTML = "";
-
-    querySnapshot.forEach((documentSnap) => {
-      const data = documentSnap.data();
-      const id = documentSnap.id;
-
-      sBody.innerHTML += `<tr>
-        <td><strong>${data.name}</strong><br><small>${data.className}</small></td>
-        <td>${data.phone}</td>
-        <td><code>${data.password || 'Not Set'}</code></td>
-        <td><button class="reset-btn" onclick="resetStudentPass('${id}', '${data.name}')">Reset Password</button></td>
-      </tr>`;
-
-      fBody.innerHTML += `<tr>
-        <td>${data.name}</td>
-        <td>${data.className}</td>
-        <td><strong>${data.feeStatus}</strong></td>
-        <td><button class="action-btn" onclick="toggleFee('${id}', '${data.feeStatus}')">Mark ${data.feeStatus === 'Paid' ? 'Pending' : 'Paid'}</button></td>
-      </tr>`;
-
-      aBody.innerHTML += `<tr>
-        <td>${data.name}</td>
-        <td>${data.className}</td>
-        <td>
-          <button class="action-btn" onclick="markAtt('${id}', '${data.name}', 'Present')">Present</button>
