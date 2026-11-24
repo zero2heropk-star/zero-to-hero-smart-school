@@ -73,10 +73,9 @@
 </script>
 
 <script type="module">
-  import { initializeApp } from "https://gstatic.com";
-  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://gstatic.com";
-  import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCtc5bzTqZD2V6TIO3aQF1n0sz8fSZIsTM",
     projectId: "zero-to-hero-smart-schoo-bf738",
