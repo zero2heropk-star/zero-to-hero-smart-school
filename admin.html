@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Zero To Hero Smart School</title>
+  <title>Admin Dashboard - Zero To Hero</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; background: #f4f7f6; }
     header { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-    nav { background: #334155; display: flex; gap: 10px; padding: 10px 20px; overflow-x: auto; }
+    nav { background: #334155; display: flex; gap: 8px; padding: 10px 15px; overflow-x: auto; }
     nav button { background: transparent; color: white; border: none; padding: 8px 12px; cursor: pointer; font-size: 14px; border-radius: 5px; white-space: nowrap; }
     nav button.active, nav button:hover { background: #007bff; }
     .container { padding: 15px; max-width: 1000px; margin: auto; }
@@ -17,8 +17,9 @@
     table { width: 100%; border-collapse: collapse; margin-top: 15px; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
     th { background: #f8fafc; }
-    input, select { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
-    .action-btn { background: #10b981; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; margin-top: 5px; }
+    input, select, textarea { padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-family: inherit; }
+    .action-btn { background: #10b981; color: white; border: none; padding: 10px 14px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-weight: bold; }
+    .reset-btn { background: #f59e0b; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -29,43 +30,48 @@
 </header>
 
 <nav>
-  <button class="tab-btn active" onclick="openTab(event, 'students')">Students & Admission</button>
-  <button class="tab-btn" onclick="openTab(event, 'fees')">Fees Management</button>
+  <button class="tab-btn active" onclick="openTab(event, 'students')">Students & Password</button>
+  <button class="tab-btn" onclick="openTab(event, 'fees')">Fees</button>
   <button class="tab-btn" onclick="openTab(event, 'attendance')">Attendance</button>
+  <button class="tab-btn" onclick="openTab(event, 'homework')">Homework & Notice</button>
 </nav>
 
 <div class="container">
   
+  <!-- 1. STUDENTS & PASSWORD -->
   <div id="students" class="tab-content card">
-    <h3>Add / Approve Student Admission</h3>
+    <h3>Add Student & Set Login Password</h3>
     <form id="addStudentForm">
       <input type="text" id="sName" placeholder="Student Full Name" required>
       <select id="sClass" required>
         <option value="">Select Class</option>
         <option value="Play Group">Play Group</option>
         <option value="Nursery">Nursery</option>
-        <option value="Class 1">Class 1</option>
+        <option value="LKG / UKG">LKG / UKG</option>
+        <option value="Class 1 - 5">Class 1 - 5</option>
+        <option value="Class 6 - 8">Class 6 - 8</option>
         <option value="Coaching">Coaching</option>
       </select>
       <input type="text" id="sFather" placeholder="Father's Name" required>
-      <input type="tel" id="sPhone" placeholder="Contact Number" required>
+      <input type="tel" id="sPhone" placeholder="Student Login ID / Mobile" required>
+      <input type="text" id="sPass" placeholder="Create Student Password" required>
       <button type="submit" class="action-btn">Add Student</button>
     </form>
 
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Class</th>
-          <th>Father's Name</th>
-          <th>Contact</th>
-          <th>Fee Status</th>
+          <th>Name & Class</th>
+          <th>Login ID</th>
+          <th>Password</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="studentTableBody"></tbody>
     </table>
   </div>
 
+  <!-- 2. FEES -->
   <div id="fees" class="tab-content card hidden">
     <h3>Fees Management</h3>
     <table>
@@ -81,6 +87,7 @@
     </table>
   </div>
 
+  <!-- 3. ATTENDANCE -->
   <div id="attendance" class="tab-content card hidden">
     <h3>Daily Attendance</h3>
     <label>Select Date: <input type="date" id="attDate"></label>
@@ -94,6 +101,34 @@
       </thead>
       <tbody id="attendanceTableBody"></tbody>
     </table>
+  </div>
+
+  <!-- 4. HOMEWORK & NOTICE BOARD -->
+  <div id="homework" class="tab-content card hidden">
+    <h3>📢 Post Notice (सूचना भेजें)</h3>
+    <form id="noticeForm">
+      <input type="text" id="noticeTitle" placeholder="सूचना का शीर्षक (जैसे: कल स्कूल बंद रहेगा)" required>
+      <textarea id="noticeBody" rows="2" placeholder="पूरा विवरण लिखें..." required></textarea>
+      <button type="submit" class="action-btn">Notice पोस्ट करें</button>
+    </form>
+
+    <hr style="margin:20px 0;">
+
+    <h3>📚 Post Daily Homework (होमवर्क भेजें)</h3>
+    <form id="hwForm">
+      <select id="hwClass" required>
+        <option value="">किस क्लास के लिए? (Select Class)</option>
+        <option value="Play Group">Play Group</option>
+        <option value="Nursery">Nursery</option>
+        <option value="LKG / UKG">LKG / UKG</option>
+        <option value="Class 1 - 5">Class 1 - 5</option>
+        <option value="Class 6 - 8">Class 6 - 8</option>
+        <option value="Coaching">Coaching</option>
+      </select>
+      <input type="text" id="hwSubject" placeholder="विषय (जैसे: Math, English, Hindi)" required>
+      <textarea id="hwText" rows="3" placeholder="आज का होमवर्क यहाँ लिखें..." required></textarea>
+      <button type="submit" class="action-btn">Homework भेजें</button>
+    </form>
   </div>
 
 </div>
@@ -115,7 +150,6 @@
 
   const firebaseConfig = {
     apiKey: "AIzaSyCtc5bzTqZD2V6TIO3aQF1n0sz8fSZIsTM",
-    authDomain: "://firebaseapp.com",
     projectId: "zero-to-hero-smart-schoo-bf738",
     storageBucket: "zero-to-hero-smart-schoo-bf738.firebasestorage.app",
     messagingSenderId: "641666497738",
@@ -139,6 +173,7 @@
     signOut(auth).then(() => window.location.href = "admin-login.html");
   });
 
+  // Add Student
   document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     await addDoc(collection(db, "students"), {
@@ -146,10 +181,36 @@
       className: document.getElementById('sClass').value,
       fatherName: document.getElementById('sFather').value,
       phone: document.getElementById('sPhone').value,
+      password: document.getElementById('sPass').value,
       feeStatus: "Pending"
     });
     e.target.reset();
     loadStudents();
+  });
+
+  // Post Notice
+  document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await addDoc(collection(db, "notices"), {
+      title: document.getElementById('noticeTitle').value,
+      body: document.getElementById('noticeBody').value,
+      date: new Date().toLocaleDateString('hi-IN')
+    });
+    e.target.reset();
+    alert("✅ Notice सफलतापूर्वक पोस्ट हो गया है!");
+  });
+
+  // Post Homework
+  document.getElementById('hwForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await addDoc(collection(db, "homework"), {
+      className: document.getElementById('hwClass').value,
+      subject: document.getElementById('hwSubject').value,
+      task: document.getElementById('hwText').value,
+      date: new Date().toLocaleDateString('hi-IN')
+    });
+    e.target.reset();
+    alert("✅ Homework सफलतापूर्वक भेज दिया गया है!");
   });
 
   async function loadStudents() {
@@ -164,7 +225,12 @@
       const data = documentSnap.data();
       const id = documentSnap.id;
 
-      sBody.innerHTML += `<tr><td>${data.name}</td><td>${data.className}</td><td>${data.fatherName}</td><td>${data.phone}</td><td>${data.feeStatus}</td></tr>`;
+      sBody.innerHTML += `<tr>
+        <td><strong>${data.name}</strong><br><small>${data.className}</small></td>
+        <td>${data.phone}</td>
+        <td><code>${data.password || 'Not Set'}</code></td>
+        <td><button class="reset-btn" onclick="resetStudentPass('${id}', '${data.name}')">Reset Password</button></td>
+      </tr>`;
 
       fBody.innerHTML += `<tr>
         <td>${data.name}</td>
@@ -178,24 +244,3 @@
         <td>${data.className}</td>
         <td>
           <button class="action-btn" onclick="markAtt('${id}', '${data.name}', 'Present')">Present</button>
-          <button class="logout-btn" onclick="markAtt('${id}', '${data.name}', 'Absent')">Absent</button>
-        </td>
-      </tr>`;
-    });
-  }
-
-  window.toggleFee = async (id, currentStatus) => {
-    const newStatus = currentStatus === 'Paid' ? 'Pending' : 'Paid';
-    await updateDoc(doc(db, "students", id), { feeStatus: newStatus });
-    loadStudents();
-  };
-
-  window.markAtt = async (studentId, studentName, status) => {
-    const date = document.getElementById('attDate').value;
-    await addDoc(collection(db, "attendance"), { studentId, studentName, date, status });
-    alert(`${studentName} marked ${status} for ${date}`);
-  };
-</script>
-
-</body>
-</html>
