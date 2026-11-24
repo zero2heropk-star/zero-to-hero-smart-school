@@ -29,6 +29,7 @@
 
 <div class="wrap">
   <div class="login-box">
+    <!-- Email & Password Login -->
     <div id="emailSection">
       <h2>Admin Login</h2>
       <form id="loginForm">
@@ -36,18 +37,20 @@
         <input type="password" id="adminPassword" placeholder="Password" required>
         <button type="submit" class="main-btn" id="loginBtn">Secure Login</button>
       </form>
-      <span class="toggle-link" onclick="showOtpBox()">पासवर्ड भूल गए? Mobile OTP से खोलें</span>
+      <span class="toggle-link" onclick="showOtpBox()">पासवर्ड भूल गए? Mobile OTP से नया पासवर्ड बनाएं</span>
     </div>
 
+    <!-- Mobile OTP Password Reset -->
     <div id="otpSection" class="hidden">
-      <h2>Admin Mobile OTP</h2>
+      <h2>Mobile OTP Verification</h2>
       <input type="tel" id="adminPhone" placeholder="+91 के साथ मोबाइल नंबर" value="+91">
       <div id="recaptcha-container"></div>
       <button type="button" class="main-btn otp-btn" id="sendOtpBtn">OTP भेजें</button>
       
       <div id="verifyBox" class="hidden" style="margin-top:10px;">
         <input type="number" id="otpCode" placeholder="6-अंकों का OTP डालें">
-        <button type="button" class="main-btn" id="verifyOtpBtn">OTP वेरिफाई करें</button>
+        <input type="text" id="newAdminPass" placeholder="नया Admin Password लिखें">
+        <button type="button" class="main-btn" id="verifyOtpBtn">OTP वेरिफाई करें और लॉगिन करें</button>
       </div>
       <span class="toggle-link" onclick="showEmailBox()">वापस Email Login पर जाएं</span>
     </div>
@@ -71,7 +74,8 @@
 
 <script type="module">
   import { initializeApp } from "https://gstatic.com";
-  import { getAuth, signInWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber } from "https://gstatic.com";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "https://gstatic.com";
+  import { getFirestore, doc, getDoc, setDoc } from "https://gstatic.com";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCtc5bzTqZD2V6TIO3aQF1n0sz8fSZIsTM",
@@ -84,11 +88,26 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
   const statusMsg = document.getElementById('statusMsg');
 
+  // Auto-create default admin account in Firestore if not set yet
+  async function initAdmin() {
+    const adminRef = doc(db, "settings", "adminAccount");
+    const snap = await getDoc(adminRef);
+    if (!snap.exists()) {
+      await setDoc(adminRef, {
+        email: "zero2heropk@gmail.com",
+        password: "admin123"
+      });
+    }
+  }
+  initAdmin();
+
+  // Direct Database Login (Works 100% in App & Browser)
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('adminEmail').value.trim();
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
     const password = document.getElementById('adminPassword').value.trim();
     const btn = document.getElementById('loginBtn');
 
@@ -96,16 +115,26 @@
     statusMsg.textContent = "";
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      localStorage.setItem("adminLoggedIn", "true");
-      window.location.href = "admin.html";
+      const adminRef = doc(db, "settings", "adminAccount");
+      const snap = await getDoc(adminRef);
+      const data = snap.data();
+
+      if (data && data.email === email && data.password === password) {
+        localStorage.setItem("adminLoggedIn", "true");
+        window.location.href = "admin.html";
+      } else {
+        btn.textContent = "Secure Login";
+        statusMsg.style.color = "red";
+        statusMsg.textContent = "गलत Email या Password! (पहली बार के लिए पासवर्ड: admin123)";
+      }
     } catch (error) {
       btn.textContent = "Secure Login";
       statusMsg.style.color = "red";
-      statusMsg.textContent = "गलत Admin Email या Password!";
+      statusMsg.textContent = "Database Error: " + error.message;
     }
   });
 
+  // Mobile OTP Reset
   let confirmationResult;
   document.getElementById('sendOtpBtn').addEventListener('click', async () => {
     const phone = document.getElementById('adminPhone').value.trim();
@@ -123,8 +152,18 @@
 
   document.getElementById('verifyOtpBtn').addEventListener('click', async () => {
     const code = document.getElementById('otpCode').value.trim();
+    const newPass = document.getElementById('newAdminPass').value.trim();
+    if (!newPass) {
+      statusMsg.style.color = "red";
+      statusMsg.textContent = "कृपया नया पासवर्ड लिखें!";
+      return;
+    }
     try {
       await confirmationResult.confirm(code);
+      await setDoc(doc(db, "settings", "adminAccount"), {
+        email: "zero2heropk@gmail.com",
+        password: newPass
+      });
       localStorage.setItem("adminLoggedIn", "true");
       window.location.href = "admin.html";
     } catch (error) {
