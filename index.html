@@ -6,29 +6,42 @@
   <title>Zero To Hero Smart School</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 0; color: #1e293b; }
-    header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; text-align: center; padding: 25px 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    header img { width: 75px; height: 75px; border-radius: 50%; background: white; padding: 4px; margin-bottom: 10px; }
-    header h1 { margin: 5px 0; font-size: 22px; }
-    header p { margin: 0; font-size: 14px; opacity: 0.9; }
+    .top-bar { background: #0f172a; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .nav-pill { background: #334155; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; }
+    header { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; text-align: center; padding: 20px 15px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+    header img { width: 70px; height: 70px; border-radius: 50%; background: white; padding: 4px; margin-bottom: 8px; }
+    header h1 { margin: 5px 0; font-size: 21px; }
+    header p { margin: 0; font-size: 13px; opacity: 0.9; }
     .container { padding: 15px; max-width: 450px; margin: auto; }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.06); margin-bottom: 18px; }
     h3 { margin-top: 0; color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; font-size: 18px; }
     input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
     button { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 8px; }
-    button:hover { background: #1d4ed8; }
     .green-btn { background: #10b981; }
     .logout-btn { background: #ef4444; }
+    .print-btn { background: #0f172a; font-size: 14px; padding: 10px; }
     .toggle-btn { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; margin-top: 5px; }
     .msg { text-align: center; font-size: 14px; font-weight: bold; margin-top: 10px; }
     .hidden { display: none; }
-    .info-row { padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 15px; }
+    .info-row { padding: 8px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 15px; }
+    .notice-item { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-size: 14px; }
+    .hw-item { background: #eff6ff; border-left: 4px solid #2563eb; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-size: 14px; }
+    .res-item { background: #ecfdf5; border-left: 4px solid #10b981; padding: 10px; margin-bottom: 10px; border-radius: 6px; font-size: 14px; }
+    .receipt-box { border: 2px dashed #64748b; padding: 12px; border-radius: 8px; background: #f8fafc; margin-top: 12px; font-size: 14px; }
     .admin-footer { text-align: center; padding: 15px 0 30px; }
     .admin-link { display: inline-block; background: #1e293b; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 15px; }
   </style>
 </head>
 <body>
 
-  <header>
+  <!-- TOP NAVIGATION BAR (BACK & HOME) -->
+  <div class="top-bar">
+    <button type="button" class="nav-pill" style="width:auto; margin:0;" onclick="stepBack()">⬅️ Back</button>
+    <span style="font-size:14px; font-weight:bold;">Zero To Hero</span>
+    <button type="button" class="nav-pill" style="width:auto; margin:0;" onclick="goHome()">🏠 Home</button>
+  </div>
+
+  <header id="mainHeader">
     <img src="assets/logo.png" alt="School Logo" onerror="this.style.display='none'">
     <h1>Zero To Hero Smart School</h1>
     <p>Play Group to Class 8th & Coaching Classes</p>
@@ -36,7 +49,13 @@
 
   <div class="container">
 
-    <!-- 1. STUDENT LOGIN CARD -->
+    <!-- 1. NOTICE BOARD -->
+    <div id="noticeCard" class="card">
+      <h3>📢 School Notice Board (सूचना पट्ट)</h3>
+      <div id="noticeList"><p style="color:#64748b; font-size:14px;">सूचनाएं लोड हो रही हैं...</p></div>
+    </div>
+
+    <!-- 2. STUDENT LOGIN CARD -->
     <div id="studentLoginBox" class="card">
       <h3>🎓 Student Login (छात्र लॉगिन)</h3>
       <form id="studentLoginForm">
@@ -45,25 +64,37 @@
         <button type="submit" id="stLoginBtn">Login करें</button>
       </form>
       <p id="stError" class="msg" style="color:red;"></p>
-      <p style="text-align:center; font-size:13px; color:#64748b; margin:10px 0 0;">
-        * पासवर्ड भूल जाने पर कृपया स्कूल Admin से संपर्क करें।
-      </p>
     </div>
 
-    <!-- 2. STUDENT DASHBOARD (लॉगिन के बाद दिखेगा) -->
+    <!-- 3. STUDENT DASHBOARD -->
     <div id="studentDashboard" class="card hidden">
       <h3 id="welcomeName">स्वागत है</h3>
       <div class="info-row"><span>Class (कक्षा):</span> <strong id="stClass"></strong></div>
       <div class="info-row"><span>Father's Name:</span> <strong id="stFather"></strong></div>
-      <div class="info-row"><span>Mobile / ID:</span> <strong id="stMobile"></strong></div>
       <div class="info-row"><span>Fees Status:</span> <strong id="stFees"></strong></div>
-      <button class="logout-btn" onclick="logoutStudent()">Logout करें</button>
+
+      <div id="receiptSection" class="receipt-box hidden">
+        <div style="text-align:center; font-weight:bold; color:#1e3a8a; margin-bottom:5px;">🧾 OFFICIAL FEES RECEIPT</div>
+        <div><strong>Student:</strong> <span id="recName"></span></div>
+        <div><strong>Class:</strong> <span id="recClass"></span></div>
+        <div><strong>Amount Paid:</strong> ₹<span id="recAmount"></span></div>
+        <div><strong>Payment Date:</strong> <span id="recDate"></span></div>
+        <button type="button" class="print-btn" onclick="window.print()">🖨️ Receipt प्रिंट / PDF सेव करें</button>
+      </div>
+
+      <h4 style="margin:15px 0 8px; color:#10b981;">🏆 आपका Result (अंक पत्र):</h4>
+      <div id="studentResultList"><p style="font-size:14px; color:#64748b;">अभी कोई रिजल्ट अपलोड नहीं है।</p></div>
+      
+      <h4 style="margin:15px 0 8px; color:#1e3a8a;">📚 आपकी क्लास का Homework:</h4>
+      <div id="studentHwList"><p style="font-size:14px; color:#64748b;">कोई होमवर्क नहीं मिला।</p></div>
+
+      <button class="logout-btn" onclick="goHome()">Logout / Home जाएं</button>
     </div>
 
-    <!-- 3. ONLINE ADMISSION FORM CARD -->
-    <div class="card">
+    <!-- 4. ONLINE ADMISSION FORM CARD -->
+    <div id="admissionCard" class="card">
       <h3>📝 Online Admission (नया प्रवेश आवेदन)</h3>
-      <button type="button" class="toggle-btn" onclick="toggleAdmission()">प्रवेश फॉर्म खोलें / बंद करें</button>
+      <button type="button" class="toggle-btn" onclick="openAdmissionStep()">प्रवेश फॉर्म खोलें / बंद करें</button>
       
       <form id="admissionForm" class="hidden" style="margin-top:10px;">
         <input type="text" id="admName" placeholder="छात्र का पूरा नाम (Student Name)" required>
@@ -83,17 +114,48 @@
       <p id="admMsg" class="msg" style="color:green;"></p>
     </div>
 
-    <!-- 4. ADMIN PANEL LINK -->
-    <div class="admin-footer">
+    <!-- 5. ADMIN PANEL LINK -->
+    <div id="adminFooter" class="admin-footer">
       <a href="admin-login.html" class="admin-link">🔐 Admin Login (एडमिन लॉगिन)</a>
     </div>
 
   </div>
 
   <script>
-    function toggleAdmission() {
-      document.getElementById('admissionForm').classList.toggle('hidden');
+    // Step-by-Step Navigation Logic
+    function openAdmissionStep() {
+      const form = document.getElementById('admissionForm');
+      form.classList.toggle('hidden');
+      if (!form.classList.contains('hidden')) {
+        history.pushState({ step: 'admission' }, '', '#admission');
+      }
     }
+
+    function goHome() {
+      document.getElementById('studentDashboard').classList.add('hidden');
+      document.getElementById('admissionForm').classList.add('hidden');
+      document.getElementById('studentLoginBox').classList.remove('hidden');
+      document.getElementById('noticeCard').classList.remove('hidden');
+      document.getElementById('admissionCard').classList.remove('hidden');
+      document.getElementById('adminFooter').classList.remove('hidden');
+      document.getElementById('studentLoginForm').reset();
+      document.getElementById('stLoginBtn').textContent = "Login करें";
+      window.scrollTo(0, 0);
+    }
+
+    function stepBack() {
+      if (!document.getElementById('studentDashboard').classList.contains('hidden') || 
+          !document.getElementById('admissionForm').classList.contains('hidden')) {
+        goHome();
+      } else if (window.history.length > 1) {
+        window.history.back();
+      }
+    }
+
+    // Handle Mobile Phone Hardware/Gesture Back Button
+    window.addEventListener('popstate', () => {
+      goHome();
+    });
   </script>
 
   <script type="module">
@@ -112,81 +174,14 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // 1. Student Login Logic
-    document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const phoneInput = document.getElementById('stPhone').value.trim();
-      const passInput = document.getElementById('stPass').value.trim();
-      const errBox = document.getElementById('stError');
-      const btn = document.getElementById('stLoginBtn');
-
-      btn.textContent = "जांच हो रही है...";
-      errBox.textContent = "";
-
+    async function loadNotices() {
+      const noticeBox = document.getElementById('noticeList');
       try {
-        const q = query(
-          collection(db, "students"),
-          where("phone", "==", phoneInput),
-          where("password", "==", passInput)
-        );
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-          btn.textContent = "Login करें";
-          errBox.textContent = "गलत मोबाइल नंबर या पासवर्ड! कृपया Admin से संपर्क करें।";
-        } else {
-          querySnapshot.forEach((doc) => {
-            const student = doc.data();
-            document.getElementById('welcomeName').textContent = "नमस्ते, " + student.name;
-            document.getElementById('stClass').textContent = student.className;
-            document.getElementById('stFather').textContent = student.fatherName;
-            document.getElementById('stMobile').textContent = student.phone;
-            document.getElementById('stFees').textContent = student.feeStatus;
-
-            document.getElementById('studentLoginBox').classList.add('hidden');
-            document.getElementById('studentDashboard').classList.remove('hidden');
-          });
+        const snap = await getDocs(collection(db, "notices"));
+        if (snap.empty) {
+          noticeBox.innerHTML = "<p style='color:#64748b; font-size:14px;'>अभी कोई नई सूचना नहीं है।</p>";
+          return;
         }
-      } catch (error) {
-        btn.textContent = "Login करें";
-        errBox.textContent = "Error: " + error.message;
-      }
-    });
-
-    window.logoutStudent = () => {
-      document.getElementById('studentDashboard').classList.add('hidden');
-      document.getElementById('studentLoginBox').classList.remove('hidden');
-      document.getElementById('studentLoginForm').reset();
-      document.getElementById('stLoginBtn').textContent = "Login करें";
-    };
-
-    // 2. Online Admission Form Logic (Sends directly to Admin Dashboard)
-    document.getElementById('admissionForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const admBtn = document.getElementById('admBtn');
-      const admMsg = document.getElementById('admMsg');
-      admBtn.textContent = "भेजा जा रहा है...";
-
-      try {
-        await addDoc(collection(db, "students"), {
-          name: document.getElementById('admName').value.trim(),
-          className: document.getElementById('admClass').value,
-          fatherName: document.getElementById('admFather').value.trim(),
-          phone: document.getElementById('admPhone').value.trim(),
-          password: "Pending (Admin सेट करेगा)",
-          feeStatus: "New Admission"
-        });
-        e.target.reset();
-        e.target.classList.add('hidden');
-        admBtn.textContent = "आवेदन जमा करें (Submit)";
-        admMsg.textContent = "✅ आपका प्रवेश आवेदन सफलतापूर्वक जमा हो गया है! जल्द ही स्कूल Admin आपसे संपर्क करेंगे।";
-      } catch (error) {
-        admBtn.textContent = "आवेदन जमा करें (Submit)";
-        admMsg.style.color = "red";
-        admMsg.textContent = "Error: " + error.message;
-      }
-    });
-  </script>
-
-</body>
-</html>
+        noticeBox.innerHTML = "";
+        snap.forEach(doc => {
+          const n = doc.data();
