@@ -29,18 +29,16 @@
 
 <div class="wrap">
   <div class="login-box">
-    <!-- Email Login -->
     <div id="emailSection">
       <h2>Admin Login</h2>
       <form id="loginForm">
-        <input type="email" id="adminEmail" placeholder="Admin Email" value="Zero2heropk@gmail.com" required>
+        <input type="email" id="adminEmail" placeholder="Admin Email" required>
         <input type="password" id="adminPassword" placeholder="Password" required>
         <button type="submit" class="main-btn" id="loginBtn">Secure Login</button>
       </form>
       <span class="toggle-link" onclick="showOtpBox()">पासवर्ड भूल गए? Mobile OTP से खोलें</span>
     </div>
 
-    <!-- Mobile OTP Login -->
     <div id="otpSection" class="hidden">
       <h2>Admin Mobile OTP</h2>
       <input type="tel" id="adminPhone" placeholder="+91 के साथ मोबाइल नंबर" value="+91">
@@ -88,7 +86,6 @@
   const auth = getAuth(app);
   const statusMsg = document.getElementById('statusMsg');
 
-  // Direct Secure Login
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('adminEmail').value.trim();
@@ -103,19 +100,12 @@
       localStorage.setItem("adminLoggedIn", "true");
       window.location.href = "admin.html";
     } catch (error) {
-      // Fallback check if Firebase Auth session blocks WebView
-      if (email.toLowerCase() === "zero2heropk@gmail.com" && password === "123456") {
-        localStorage.setItem("adminLoggedIn", "true");
-        window.location.href = "admin.html";
-      } else {
-        btn.textContent = "Secure Login";
-        statusMsg.style.color = "red";
-        statusMsg.textContent = "Error: " + error.code + " (या डिफ़ॉल्ट पासवर्ड 123456 डालें)";
-      }
+      btn.textContent = "Secure Login";
+      statusMsg.style.color = "red";
+      statusMsg.textContent = "गलत Admin Email या Password!";
     }
   });
 
-  // Mobile OTP
   let confirmationResult;
   document.getElementById('sendOtpBtn').addEventListener('click', async () => {
     const phone = document.getElementById('adminPhone').value.trim();
